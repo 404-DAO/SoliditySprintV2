@@ -4,10 +4,12 @@ pragma solidity <=0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import "@solmate/tokens/ERC1155.sol";
+import { CREATE3 } from "./CREATE3.sol";
 
 interface ISupportsInterface {
     function supportsInterface(bytes4 interfaceId) external view returns(bool); 
 }
+
 
 contract SoliditySprint2022 is Ownable, ERC1155 {
     bool public live;
@@ -25,7 +27,10 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
     bytes32 public immutable secondHash;
     uint minimumGasPrice;
 
+    mapping(address _contract => bool) public hasEntered;
+
     uint public startTime;
+
 
     event registration(address indexed teamAddr, string name);
 
@@ -221,39 +226,58 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
 
     }
 
-    function f11(int num1, int num2) public isLive {
+    //Test of using the ~ operator. Probably should be made lower in the sprint
+    function f11(uint val1, uint val2) public isLive {
         uint fNum = 11;
         require(!progress[msg.sender][fNum]);
 
-      
+        require(~val1 == val2);
+        
         givePoints(fNum, msg.sender, 2400);
 
     }
 
+    //Test of ABI encoding/decoding
     function f12(bytes memory data) public isLive {
         uint fNum = 12;
         require(!progress[msg.sender][fNum]);
 
+        (uint val1, bytes32 _hash, address _addr) = abi.decode(data, (uint, bytes32, address));
+        
+        require(val1 == type(uint).max);
+        require(_hash == keccak256("The dark side is a path to abilities some consider...unnatural"));
+        require(_addr == address(this));
 
         givePoints(fNum, msg.sender, 2600);
     }
 
-    function f13(address team) public isLive {
+    //TODO: Something with permit2
+    function f13(bytes32 signature) public isLive {
         uint fNum = 13;
         require(!progress[team][fNum]);
 
-    
+        //TODO: Take the signature and send it to permit2 then try and transfer from
+
 
         givePoints(fNum, team, 2800);
     }
 
-    function f14(address team) public isLive {
+    //Give me a contract before and after it has self-destructed
+    function f14(address team, address _destination) public isLive {
         uint fNum = 14;
         require(!progress[team][fNum]);
 
-    
+        if (!hasEntered[_destination]) {
+            //Require contract exist
+            require(msg.sender.length != 0);
+            hasEntered[msg.sender] = true;
+        }
 
-        givePoints(fNum, team, 3000);
+        else {
+            //Contract must be selfdestructed by this point
+            require(_destination.code.length == 0);
+            givePoints(fNum, team, 3000);
+        }
     }
 
 
@@ -279,61 +303,40 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         givePoints(fNum, team, 3600);
     }
 
+    //Challenge that tests your ability to deploy using create3 library included
     function f18(address team) public isLive {
         uint fNum = 18;
         require(!progress[team][fNum]);
 
+        address deployed = CREATE3.getDeployed(msg.sender, CREATE3.deploymentSalt);
+        require(deployed.code.length != 0);
 
         givePoints(fNum, team, 3800);
     }
 
-    function f19(address team) public isLive {
+    function f19(address team, address _contract) public isLive {
         uint fNum = 19;
         require(!progress[team][fNum]);
 
+        //TODO: Contract written in non-solidity (probably huff)
       
         givePoints(fNum, team, 4000);
     }
 
-    function f20(address team, bytes32[] calldata proof, bytes32 leaf) public isLive {
+    function f20(address team, address _contract) public isLive {
         uint fNum = 20;
         require(!progress[team][fNum]);
      
+        //TODO: Check that contract is writtten in vyper
+
 
         givePoints(fNum, team, 4200);
 
-    }
-
-    function f21(address team, uint value) public isLive {
-        uint fNum = 21;
-
-        require(!progress[team][fNum]);
-
-    
-
-        givePoints(fNum, team, 4400);
-    }
-    
-    function f22(address team, bytes calldata data, bytes32 hashSlingingSlasher) public isLive {
-        uint fNum = 22;
-        require(!progress[team][fNum]);
-
-        
-        givePoints(fNum, team, 4600);
-    }
-
-    function f23(address team, uint value) public isLive {
-
-        uint fNum = 23;
-        require(!progress[team][fNum]);
-
-        
-
-        givePoints(fNum, team, 4800);
     }
 
 
     function uri(uint256) public pure override returns (string memory) {
         return "";
     }
+
 }

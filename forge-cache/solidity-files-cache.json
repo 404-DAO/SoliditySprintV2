@@ -268,9 +268,93 @@
         }
       }
     },
+    "lib/solmate/src/utils/Bytes32AddressLib.sol": {
+      "lastModificationDate": 1695668206687,
+      "contentHash": "8a05c8576a41e44d3e96a6e169162327",
+      "sourceName": "lib/solmate/src/utils/Bytes32AddressLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "Bytes32AddressLib": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "Bytes32AddressLib.sol/Bytes32AddressLib.json"
+        }
+      }
+    },
+    "src/CREATE3.sol": {
+      "lastModificationDate": 1695767687585,
+      "contentHash": "d1c500093c6486a9406ebe334893d2f5",
+      "sourceName": "src/CREATE3.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/solmate/src/utils/Bytes32AddressLib.sol"
+      ],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "CREATE3": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "CREATE3.sol/CREATE3.json"
+        }
+      }
+    },
     "src/SoliditySprint2022.sol": {
-      "lastModificationDate": 1695671071526,
-      "contentHash": "ffb28f66e363bc94befe693eae2b49b0",
+      "lastModificationDate": 1695767713839,
+      "contentHash": "104480266f9674e7325d64d6098b598d",
       "sourceName": "src/SoliditySprint2022.sol",
       "solcConfig": {
         "settings": {
@@ -307,7 +391,9 @@
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/solmate/src/tokens/ERC1155.sol"
+        "lib/solmate/src/tokens/ERC1155.sol",
+        "lib/solmate/src/utils/Bytes32AddressLib.sol",
+        "src/CREATE3.sol"
       ],
       "versionRequirement": "<=0.8.19",
       "artifacts": {
