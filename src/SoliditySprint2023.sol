@@ -5,13 +5,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import "@solmate/tokens/ERC1155.sol";
 import { CREATE3 } from "./CREATE3.sol";
+import { console2 as console } from "forge-std/console2.sol";
 
 interface ISupportsInterface {
     function supportsInterface(bytes4 interfaceId) external view returns(bool); 
 }
 
 
-contract SoliditySprint2022 is Ownable, ERC1155 {
+contract SoliditySprint2023 is Ownable, ERC1155 {
     bool public live;
     bool public timeExtended = false;
 
@@ -21,7 +22,7 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
     mapping(uint => uint) public solves;
     mapping(bytes32 => bool) public teams;
 
-    uint highestNumber;
+    uint public highestNumber;
 
     bytes32 public firstHash;
     bytes32 public immutable secondHash;
@@ -38,7 +39,7 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         secondHash = keccak256(inputData);
     }
 
-    function storeFirstHash(bytes memory inputData) external onlyOwner {
+    function setFirstHash(bytes memory inputData) external onlyOwner {
         firstHash = keccak256(inputData);
     }
 
@@ -140,7 +141,7 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         uint fNum = 4;
         require(!progress[msg.sender][fNum]);
 
-        require(destAddr != address(this) && destAddr != address(0));
+        require(destAddr != address(this) && destAddr != msg.sender && destAddr != address(0) && destAddr != address(0xdead));
 
         uint bal = destAddr.balance;
         require(bal >= 1 ether);
@@ -185,10 +186,10 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
 
     //function that tests your ability to use supportsInterface
     function f8(address team) external onlyContracts isLive {
-        uint fNum = 9;
+        uint fNum = 8;
         require(!progress[team][fNum]);
 
-       try ISupportsInterface(msg.sender).supportsInterface(Ownable.owner.selector) returns (bool supported) {
+       try ISupportsInterface(msg.sender).supportsInterface(type(Ownable).interfaceId) returns (bool supported) {
             require(supported);
        } catch {
            
@@ -207,8 +208,9 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         require(!progress[msg.sender][fNum]);
         require(progress[msg.sender][fNum - 1]);
 
-       try ISupportsInterface(msg.sender).supportsInterface(IERC4626.deposit.selector) returns (bool) {
-            revert("You better make like a tree, and get out of here...");
+       try ISupportsInterface(msg.sender).supportsInterface(type(IERC4626).interfaceId) returns (bool) {
+
+            revert("Why don't you make like a tree, and get out of here...");
        } catch {
             givePoints(fNum, team, 2000);
        }
@@ -252,7 +254,7 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
     }
 
     //TODO: Something with permit2
-    function f13(bytes32 signature) public isLive {
+    function f13(address team, bytes32 signature) public isLive {
         uint fNum = 13;
         require(!progress[team][fNum]);
 
@@ -262,19 +264,21 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         givePoints(fNum, team, 2800);
     }
 
-    //Give me a contract before and after it has self-destructed
-    function f14(address team, address _destination) public isLive {
+    //Give me a contract before and aft. er it has self-destructed
+    function f14(address _destination, address team) public isLive {
         uint fNum = 14;
         require(!progress[team][fNum]);
 
         if (!hasEntered[_destination]) {
             //Require contract exist
-            require(msg.sender.length != 0);
+            require(msg.sender.code.length != 0);
             hasEntered[msg.sender] = true;
         }
 
         else {
+            console.log("GOT HERE");
             //Contract must be selfdestructed by this point
+            //TODO: Add a check that the address hasn't been used already
             require(_destination.code.length == 0);
             givePoints(fNum, team, 3000);
         }
@@ -314,23 +318,64 @@ contract SoliditySprint2022 is Ownable, ERC1155 {
         givePoints(fNum, team, 3800);
     }
 
-    function f19(address team, address _contract) public isLive {
+    function f19(address team, address contract1, address contract2) public isLive {
         uint fNum = 19;
         require(!progress[team][fNum]);
 
-        //TODO: Contract written in non-solidity (probably huff)
+        assembly {
+            //if the two addresses are the same revert
+            if eq(xor(contract1, contract2), 0x00) {
+                revert(0,0)
+            }
+
+            //if their codehash is different revert
+            if gt(xor(extcodehash(contract1), extcodehash(contract2)), 0x00) {
+                revert(0,0)
+            }
+        }
+
+        //TODO: two contracts with the same bytecode
+        // 363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3
       
         givePoints(fNum, team, 4000);
     }
 
-    function f20(address team, address _contract) public isLive {
-        uint fNum = 20;
+    function f20(address team, address contract1) public isLive {
+        uint fNum = 19;
+        require(!progress[team][fNum]);
+
+        assembly {
+            //require contract to exist
+            if eq(extcodesize(contract1), 0x00) {
+                revert(0,0)
+            }
+
+            //require tx.origin != caller
+            if eq(origin(), caller()) {
+                revert(0, 0)
+            }
+
+            //copy the bytecode of the contract to memoryPointer
+            // extcodecopy(contract1, memoryPointer, 0, 0x00)
+
+
+
+        }
+
+        //TODO: Contract whose bytecode doesn't contain the normal solidity/vyper prefixing
+        // (probably just a 1167 minproxy)
+      
+        givePoints(fNum, team, 4200);
+    }
+
+    function f21(address team, address _contract) public isLive {
+        uint fNum = 21;
         require(!progress[team][fNum]);
      
         //TODO: Check that contract is writtten in vyper
+        //magic bytes = a16576797065728300030X00 (replace the 0x with the version number of vyper)
 
-
-        givePoints(fNum, team, 4200);
+        givePoints(fNum, team, 4400);
 
     }
 
