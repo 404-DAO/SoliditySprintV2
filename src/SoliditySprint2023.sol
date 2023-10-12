@@ -2,10 +2,12 @@
 pragma solidity <=0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/interfaces/IERC4626.sol";
+import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import "@solmate/tokens/ERC1155.sol";
 
-import {ISignatureTransfer, IEIP712} from "./interfaces/ISignatureTransfer.sol";
+import {ISignatureTransfer} from "./interfaces/ISignatureTransfer.sol";
+import { IEIP712 } from "./interfaces/IEIP712.sol";
+
 import {CREATE3} from "./CREATE3.sol";
 import {BytesLib} from "./BytesLib.sol";
 import {console2 as console} from "forge-std/console2.sol";
@@ -35,15 +37,30 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     bytes32 public immutable secondHash;
     uint256 minimumGasPrice;
 
+    IERC20 public immutable token1;
+    IERC20 public immutable token2;
+    address public immutable uniV2Pair;
+
     mapping(address _contract => bool) public hasEntered;
 
     uint256 public startTime;
 
     event registration(address indexed teamAddr, string name);
 
-    constructor(bytes memory inputData, address uniV2Pool, address _weth) {
+    constructor(
+        bytes memory inputData,
+        address uniV2Pool,
+        address _weth,
+        address _token1,
+        address _token2,
+        address pair
+    ) {
         secondHash = keccak256(inputData);
         WETH = _weth;
+        token1 = IERC20(_token1);
+        token2 = IERC20(_token2);
+
+        uniV2Pair = pair;
     }
 
     function setFirstHash(bytes memory inputData) external onlyOwner {
@@ -65,6 +82,10 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
     function extendTime() public onlyOwner {
         timeExtended = true;
+    }
+
+    function dripFaucet() external isLive {
+        token1.transfer(msg.sender, 100 ether);
     }
 
     modifier isLive() {
@@ -214,7 +235,10 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         } catch Error(string memory reason) {
             string memory expected = "Set the gear shift for the high gear of your soul...";
 
-            require(keccak256(abi.encode(reason)) == keccak256(abi.encode(expected)), "Someone didn't take care of their shoes...");
+            require(
+                keccak256(abi.encode(reason)) == keccak256(abi.encode(expected)),
+                "Someone didn't take care of their shoes..."
+            );
             givePoints(fNum, team, 2000);
         }
     }
@@ -286,7 +310,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         uint256 fNum = 16;
         require(!progress[team][fNum]);
 
-        //TODO: Get the tokens from the Uniswap V2 Pool I will deploy
+        require(token2.balanceOf(msg.sender) != 0, "Looks like someone wrote a check their butt can't cash");
 
         givePoints(fNum, team, 3400);
     }
@@ -343,9 +367,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
         assembly {
             //require contract to exist
-            if eq(extcodesize(addr), 0x00) { 
-                revert(0, 0) 
-            }
+            if eq(extcodesize(addr), 0x00) { revert(0, 0) }
 
             // set the size of the code to copy
             let size := 0x5
@@ -369,9 +391,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
             //If the bytecode is prefixed with the first or second prefix revert
             //An ERC1167 minProxy or a huff contract or something else would pass this test
-            if or(eq(mload(storageLocation), firstPrefix), eq(mload(storageLocation), secondPrefix)) {
-                revert(0, 0)
-            }
+            if or(eq(mload(storageLocation), firstPrefix), eq(mload(storageLocation), secondPrefix)) { revert(0, 0) }
         }
         givePoints(fNum, team, 4200);
     }

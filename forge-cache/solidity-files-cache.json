@@ -979,6 +979,51 @@
         }
       }
     },
+    "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1695740507577,
+      "contentHash": "3ae5166c6827a9cf1a7a462d1632b464",
+      "sourceName": "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "ERC20": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "ERC20.sol/ERC20.json"
+        }
+      }
+    },
     "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol": {
       "lastModificationDate": 1695740507577,
       "contentHash": "df36f7051335cd1e748b1b6463b7fdd3",
@@ -1358,8 +1403,8 @@
       }
     },
     "src/SoliditySprint2023.sol": {
-      "lastModificationDate": 1697063964196,
-      "contentHash": "48bd72bec428afa80a369ef631842476",
+      "lastModificationDate": 1697126916669,
+      "contentHash": "4b70e7ba98c5be7741b1592373c64285",
       "sourceName": "src/SoliditySprint2023.sol",
       "solcConfig": {
         "settings": {
@@ -1401,6 +1446,7 @@
         "lib/solmate/src/utils/Bytes32AddressLib.sol",
         "src/BytesLib.sol",
         "src/CREATE3.sol",
+        "src/interfaces/IEIP712.sol",
         "src/interfaces/ISignatureTransfer.sol"
       ],
       "versionRequirement": "<=0.8.19",
@@ -1413,9 +1459,50 @@
         }
       }
     },
+    "src/interfaces/IEIP712.sol": {
+      "lastModificationDate": 1697126362044,
+      "contentHash": "5c78bd559ab06c4a77806eef634b2525",
+      "sourceName": "src/interfaces/IEIP712.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.17",
+      "artifacts": {
+        "IEIP712": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "IEIP712.sol/IEIP712.json"
+        }
+      }
+    },
     "src/interfaces/ISignatureTransfer.sol": {
-      "lastModificationDate": 1696433114801,
-      "contentHash": "5246c643149c311e9683876950243ee0",
+      "lastModificationDate": 1697126884901,
+      "contentHash": "2caa13398e2911fee7d9d764ebb6e16e",
       "sourceName": "src/interfaces/ISignatureTransfer.sol",
       "solcConfig": {
         "settings": {
@@ -1447,19 +1534,16 @@
         }
       },
       "imports": [],
-      "versionRequirement": "^0.8.0",
+      "versionRequirement": "^0.8.17",
       "artifacts": {
-        "IEIP712": {
-          "0.8.19+commit.7dd6d404.Linux.gcc": "ISignatureTransfer.sol/IEIP712.json"
-        },
         "ISignatureTransfer": {
           "0.8.19+commit.7dd6d404.Linux.gcc": "ISignatureTransfer.sol/ISignatureTransfer.json"
         }
       }
     },
     "test/SoliditySprintSolutions.t.sol": {
-      "lastModificationDate": 1697063935069,
-      "contentHash": "8a04cd919846fe42a29fb7069f8508a0",
+      "lastModificationDate": 1697127386854,
+      "contentHash": "330130861918c5be3e6caf1658349f80",
       "sourceName": "test/SoliditySprintSolutions.t.sol",
       "solcConfig": {
         "settings": {
@@ -1513,6 +1597,7 @@
         "lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC1155/utils/ERC1155Receiver.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -1523,10 +1608,20 @@
         "src/BytesLib.sol",
         "src/CREATE3.sol",
         "src/SoliditySprint2023.sol",
+        "src/interfaces/IEIP712.sol",
         "src/interfaces/ISignatureTransfer.sol"
       ],
       "versionRequirement": null,
       "artifacts": {
+        "FakeERC20": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "SoliditySprintSolutions.t.sol/FakeERC20.json"
+        },
+        "IUniswapFactory": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "SoliditySprintSolutions.t.sol/IUniswapFactory.json"
+        },
+        "IUniswapRouter": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "SoliditySprintSolutions.t.sol/IUniswapRouter.json"
+        },
         "SoliditySprintSolutions": {
           "0.8.19+commit.7dd6d404.Linux.gcc": "SoliditySprintSolutions.t.sol/SoliditySprintSolutions.json"
         },

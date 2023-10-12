@@ -6,6 +6,40 @@ import {console2 as console} from "forge-std/console2.sol";
 import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { IEIP712 } from "src/interfaces/IEIP712.sol";
+import { ISignatureTransfer } from "src/interfaces/ISignatureTransfer.sol";
+
+interface IUniswapFactory {
+    function createPair(address token1, address token2) external returns (address);
+}
+
+interface IUniswapRouter {
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 amountADesired,
+        uint256 amountBDesired,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline
+    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
+
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+}
+
+contract FakeERC20 is ERC20 {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        _mint(msg.sender, 100000 * 10 ** decimals());
+    }
+}
 
 contract SoliditySprintSolutions is Test {
     SoliditySprint2023 sprint;
@@ -16,11 +50,38 @@ contract SoliditySprintSolutions is Test {
 
     address public constant beaconChainDepositContract = 0x00000000219ab540356cBB839Cbe05303d7705Fa;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant uniswapFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address public constant uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address public constant permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
+
+    FakeERC20 public token1;
+    FakeERC20 public token2;
 
     constructor() {
         vm.createSelectFork("mainnet");
 
-        sprint = new SoliditySprint2023(constructorInputData, address(0), WETH);
+        token1 = new FakeERC20("Esther", "ESTHER");
+        token2 = new FakeERC20("Harpua", "HARPUA");
+
+        vm.label(address(token1), "token1");
+        vm.label(address(token2), "token2");
+
+        address pair = IUniswapFactory(uniswapFactory).createPair(address(token1), address(token2));
+        token1.approve(uniswapRouter, type(uint256).max);
+        token2.approve(uniswapRouter, type(uint256).max);
+        ERC20(WETH).approve(permit2, type(uint).max);
+
+        sprint = new SoliditySprint2023(constructorInputData, address(0), WETH, address(token1), address(token2), pair);
+
+        vm.label(pair, "V2Pair");
+        vm.label(address(sprint), "Sprint");
+        vm.label(address(uniswapRouter), "UniRouter");
+        vm.label(address(uniswapFactory), "UniFactory");
+
+        token1.transfer(address(sprint), 50000 ether);
+
+        IUniswapRouter(uniswapRouter).addLiquidity(address(token1), address(token2), 
+            50000 ether, 50000 ether, 0, 0, address(sprint), block.timestamp + 1 weeks);
 
         sprint.setFirstHash(firstHashInputData);
         sprint.setMinimumGasPrice(minimumGasPrice);
@@ -28,6 +89,7 @@ contract SoliditySprintSolutions is Test {
         sprint.start();
 
         sprint.registerTeam("Nexus Series 6 Replicants");
+        deal(address(this), 1000 ether);
     }
 
     modifier pointsIncreased() {
@@ -118,9 +180,60 @@ contract SoliditySprintSolutions is Test {
 
     function testf15() public pointsIncreased {}
 
-    function testf16() public pointsIncreased {}
+    function testf16() public pointsIncreased {
+        sprint.dripFaucet();
 
-    function testf17() public pointsIncreased {}
+        uint balance = token1.balanceOf(address(this));
+        require(balance != 0, "no tokens acquired from faucet");
+        address[] memory route = new address[](2);
+        route[0] = address(token1);
+        route[1] = address(token2);
+
+        IUniswapRouter(uniswapRouter).swapExactTokensForTokens(100 ether, 1, route, address(this), block.timestamp + 1 weeks);
+
+        sprint.f16(address(this));
+    }
+
+    //TODO: Move this up in terms of points cause its pretty hard
+    //https://etherscan.deth.net/address/0x000000000022D473030F116dDEE9F6B43aC78BA3
+    //https://github.com/Uniswap/permit2/blob/main/test/SignatureTransfer.t.sol
+    function testf17() public pointsIncreased {
+        address(WETH).call{value: 1 ether}("");
+        require(ERC20(WETH).balanceOf(address(this)) != 0, "NO WETH AVAILABLE");
+
+       ISignatureTransfer.PermitTransferFrom memory permit = ISignatureTransfer.PermitTransferFrom({
+            permitted: ISignatureTransfer.TokenPermissions({token: WETH, amount: type(uint).max}),
+            nonce: 0,
+            deadline: block.timestamp + 100
+        });
+
+        bytes32 _TOKEN_PERMISSIONS_TYPEHASH = keccak256("TokenPermissions(address token,uint256 amount)");
+        bytes32 _PERMIT_TRANSFER_FROM_TYPEHASH = keccak256(
+        "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)"
+            );
+        bytes32 DOMAIN_SEPARATOR = IEIP712(permit2).DOMAIN_SEPARATOR();
+
+        bytes32 tokenPermissions = keccak256(abi.encode(_TOKEN_PERMISSIONS_TYPEHASH, permit.permitted));
+        bytes32 msgHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        _PERMIT_TRANSFER_FROM_TYPEHASH, tokenPermissions, address(this), permit.nonce, permit.deadline
+                    )
+                )
+            )
+        );
+
+        //Sign the permit info
+        uint256 PRIVATE_KEY = vm.envUint("PRIVATE_KEY"); //Useful for EIP-712 Testing
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(PRIVATE_KEY, msgHash);
+        bytes memory signature = abi.encodePacked(r, s, v);
+
+        sprint.f17(address(this), signature);
+
+    }
 
     function testf18() public pointsIncreased {
         bytes memory creationCode = abi.encodePacked(type(selfDestructable).creationCode, abi.encode(address(sprint)));
@@ -165,6 +278,10 @@ contract SoliditySprintSolutions is Test {
 
     function onERC1155Received(address, address, uint256, uint256, bytes calldata) external returns (bytes4) {
         return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+    }
+
+    function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4) {
+        return 0x1626ba7e;
     }
 }
 
