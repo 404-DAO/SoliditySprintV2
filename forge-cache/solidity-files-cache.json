@@ -1273,9 +1273,50 @@
         }
       }
     },
+    "src/BytesLib.sol": {
+      "lastModificationDate": 1697039978393,
+      "contentHash": "51df31343142a8bb61160161ee03a040",
+      "sourceName": "src/BytesLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0, <0.9.0",
+      "artifacts": {
+        "BytesLib": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "BytesLib.sol/BytesLib.json"
+        }
+      }
+    },
     "src/CREATE3.sol": {
-      "lastModificationDate": 1695829348528,
-      "contentHash": "d1c500093c6486a9406ebe334893d2f5",
+      "lastModificationDate": 1696433114801,
+      "contentHash": "8b4fe8fd61f0d6212b13225cebd8706c",
       "sourceName": "src/CREATE3.sol",
       "solcConfig": {
         "settings": {
@@ -1317,8 +1358,8 @@
       }
     },
     "src/SoliditySprint2023.sol": {
-      "lastModificationDate": 1696353956325,
-      "contentHash": "1bcd9428ddf9b30fd39426735220128c",
+      "lastModificationDate": 1697063964196,
+      "contentHash": "48bd72bec428afa80a369ef631842476",
       "sourceName": "src/SoliditySprint2023.sol",
       "solcConfig": {
         "settings": {
@@ -1358,7 +1399,9 @@
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/solmate/src/tokens/ERC1155.sol",
         "lib/solmate/src/utils/Bytes32AddressLib.sol",
-        "src/CREATE3.sol"
+        "src/BytesLib.sol",
+        "src/CREATE3.sol",
+        "src/interfaces/ISignatureTransfer.sol"
       ],
       "versionRequirement": "<=0.8.19",
       "artifacts": {
@@ -1370,9 +1413,53 @@
         }
       }
     },
+    "src/interfaces/ISignatureTransfer.sol": {
+      "lastModificationDate": 1696433114801,
+      "contentHash": "5246c643149c311e9683876950243ee0",
+      "sourceName": "src/interfaces/ISignatureTransfer.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "IEIP712": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "ISignatureTransfer.sol/IEIP712.json"
+        },
+        "ISignatureTransfer": {
+          "0.8.19+commit.7dd6d404.Linux.gcc": "ISignatureTransfer.sol/ISignatureTransfer.json"
+        }
+      }
+    },
     "test/SoliditySprintSolutions.t.sol": {
-      "lastModificationDate": 1696353914946,
-      "contentHash": "df2e0d11d931603f8b5ea7eb97f5d9e4",
+      "lastModificationDate": 1697063935069,
+      "contentHash": "8a04cd919846fe42a29fb7069f8508a0",
       "sourceName": "test/SoliditySprintSolutions.t.sol",
       "solcConfig": {
         "settings": {
@@ -1433,8 +1520,10 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/solmate/src/tokens/ERC1155.sol",
         "lib/solmate/src/utils/Bytes32AddressLib.sol",
+        "src/BytesLib.sol",
         "src/CREATE3.sol",
-        "src/SoliditySprint2023.sol"
+        "src/SoliditySprint2023.sol",
+        "src/interfaces/ISignatureTransfer.sol"
       ],
       "versionRequirement": null,
       "artifacts": {
