@@ -7,8 +7,8 @@ import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol"
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IEIP712 } from "src/interfaces/IEIP712.sol";
-import { ISignatureTransfer } from "src/interfaces/ISignatureTransfer.sol";
+import {IEIP712} from "src/interfaces/IEIP712.sol";
+import {ISignatureTransfer} from "src/interfaces/ISignatureTransfer.sol";
 
 interface IUniswapFactory {
     function createPair(address token1, address token2) external returns (address);
@@ -27,12 +27,12 @@ interface IUniswapRouter {
     ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     function swapExactTokensForTokens(
-        uint amountIn,
-        uint amountOutMin,
+        uint256 amountIn,
+        uint256 amountOutMin,
         address[] calldata path,
         address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+        uint256 deadline
+    ) external returns (uint256[] memory amounts);
 }
 
 contract FakeERC20 is ERC20 {
@@ -69,9 +69,11 @@ contract SoliditySprintSolutions is Test {
         address pair = IUniswapFactory(uniswapFactory).createPair(address(token1), address(token2));
         token1.approve(uniswapRouter, type(uint256).max);
         token2.approve(uniswapRouter, type(uint256).max);
-        ERC20(WETH).approve(permit2, type(uint).max);
+        ERC20(WETH).approve(permit2, type(uint256).max);
 
         sprint = new SoliditySprint2023(constructorInputData, address(0), WETH, address(token1), address(token2), pair);
+
+        vm.txGasPrice(minimumGasPrice + 1);
 
         vm.label(pair, "V2Pair");
         vm.label(address(sprint), "Sprint");
@@ -80,11 +82,11 @@ contract SoliditySprintSolutions is Test {
 
         token1.transfer(address(sprint), 50000 ether);
 
-        IUniswapRouter(uniswapRouter).addLiquidity(address(token1), address(token2), 
-            50000 ether, 50000 ether, 0, 0, address(sprint), block.timestamp + 1 weeks);
+        IUniswapRouter(uniswapRouter).addLiquidity(
+            address(token1), address(token2), 50000 ether, 50000 ether, 0, 0, address(sprint), block.timestamp + 1 weeks
+        );
 
         sprint.setFirstHash(firstHashInputData);
-        sprint.setMinimumGasPrice(minimumGasPrice);
 
         sprint.start();
 
@@ -131,24 +133,24 @@ contract SoliditySprintSolutions is Test {
     }
 
     function testf7() public pointsIncreased {
+        sprint.setMinimumGasPrice(minimumGasPrice);
         sprint.f7();
     }
 
     function testf8() public pointsIncreased {
-        sprint.f8(address(this));
+        uint256 first = 42069;
+        uint256 second = ~first;
+
+        sprint.f8(first, second);
     }
 
     function testf9() public pointsIncreased {
-        sprint.f8(address(this));
-
         sprint.f9(address(this));
     }
 
     function testf10() public pointsIncreased {
-        uint256 first = 42069;
-        uint256 second = ~first;
-
-        sprint.f10(first, second);
+        sprint.f9(address(this));
+        sprint.f10(address(this));
     }
 
     function testf11() public pointsIncreased {
@@ -165,7 +167,17 @@ contract SoliditySprintSolutions is Test {
         sprint.f12(concat);
     }
 
-    function testf13() public pointsIncreased {}
+    function testf13() public pointsIncreased {
+        uint256 d = 16;
+        for (uint256 x = 0; x < type(uint256).max; x++) {
+            uint256 _hash = uint256(keccak256(abi.encode(x, address(this))));
+            uint256 mask = 1 << d;
+            if (_hash % mask == 0) {
+                sprint.f13(address(this), x);
+                break;
+            }
+        }
+    }
 
     function testf14() public pointsIncreased {
         selfDestructable sd = new selfDestructable(sprint);
@@ -178,18 +190,22 @@ contract SoliditySprintSolutions is Test {
         sprint.f14(address(sd), address(this));
     }
 
-    function testf15() public pointsIncreased {}
+    function testf15() public pointsIncreased {
+        new tempAttacker(address(this), address(sprint));
+    }
 
     function testf16() public pointsIncreased {
         sprint.dripFaucet();
 
-        uint balance = token1.balanceOf(address(this));
+        uint256 balance = token1.balanceOf(address(this));
         require(balance != 0, "no tokens acquired from faucet");
         address[] memory route = new address[](2);
         route[0] = address(token1);
         route[1] = address(token2);
 
-        IUniswapRouter(uniswapRouter).swapExactTokensForTokens(100 ether, 1, route, address(this), block.timestamp + 1 weeks);
+        IUniswapRouter(uniswapRouter).swapExactTokensForTokens(
+            100 ether, 1, route, address(this), block.timestamp + 1 weeks
+        );
 
         sprint.f16(address(this));
     }
@@ -198,19 +214,20 @@ contract SoliditySprintSolutions is Test {
     //https://etherscan.deth.net/address/0x000000000022D473030F116dDEE9F6B43aC78BA3
     //https://github.com/Uniswap/permit2/blob/main/test/SignatureTransfer.t.sol
     function testf17() public pointsIncreased {
-        address(WETH).call{value: 1 ether}("");
+        (bool success, ) = address(WETH).call{value: 1 ether}("");
+        require(success);
         require(ERC20(WETH).balanceOf(address(this)) != 0, "NO WETH AVAILABLE");
 
-       ISignatureTransfer.PermitTransferFrom memory permit = ISignatureTransfer.PermitTransferFrom({
-            permitted: ISignatureTransfer.TokenPermissions({token: WETH, amount: type(uint).max}),
+        ISignatureTransfer.PermitTransferFrom memory permit = ISignatureTransfer.PermitTransferFrom({
+            permitted: ISignatureTransfer.TokenPermissions({token: WETH, amount: type(uint256).max}),
             nonce: 0,
             deadline: block.timestamp + 100
         });
 
         bytes32 _TOKEN_PERMISSIONS_TYPEHASH = keccak256("TokenPermissions(address token,uint256 amount)");
         bytes32 _PERMIT_TRANSFER_FROM_TYPEHASH = keccak256(
-        "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)"
-            );
+            "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,uint256 deadline)TokenPermissions(address token,uint256 amount)"
+        );
         bytes32 DOMAIN_SEPARATOR = IEIP712(permit2).DOMAIN_SEPARATOR();
 
         bytes32 tokenPermissions = keccak256(abi.encode(_TOKEN_PERMISSIONS_TYPEHASH, permit.permitted));
@@ -232,7 +249,6 @@ contract SoliditySprintSolutions is Test {
         bytes memory signature = abi.encodePacked(r, s, v);
 
         sprint.f17(address(this), signature);
-
     }
 
     function testf18() public pointsIncreased {
@@ -250,24 +266,16 @@ contract SoliditySprintSolutions is Test {
     }
 
     function testf20() public pointsIncreased {
-        vm.expectRevert();
-        sprint.f20(address(this), WETH);
-        console.log("first test failed as expected");
-
-        vm.expectRevert();
-        sprint.f20(address(this), beaconChainDepositContract);
-        console.log("second test failed as expected");
-
-        sprint.f20(address(this), 0xbe35cD2a89ffFCBcC4445Faf92b27Ecc878c9f4e);
+        sprint.f20(address(this), 0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499);
     }
 
     function testf21() public pointsIncreased {
-        sprint.f21(address(this), 0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499);
+        sprint.f21(address(this), 0xbe35cD2a89ffFCBcC4445Faf92b27Ecc878c9f4e);
     }
 
     fallback() external {}
 
-    function supportsInterface(bytes4 interfaceId) external returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool supported) {
         // console2.logBytes4(type(IERC20).interfaceId);
         if (interfaceId == type(Ownable).interfaceId) {
             return true;
@@ -276,11 +284,11 @@ contract SoliditySprintSolutions is Test {
         }
     }
 
-    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external returns (bytes4) {
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure returns (bytes4) {
         return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
     }
 
-    function isValidSignature(bytes32 hash, bytes calldata signature) external view returns (bytes4) {
+    function isValidSignature(bytes32, bytes calldata) external pure returns (bytes4) {
         return 0x1626ba7e;
     }
 }
@@ -298,5 +306,20 @@ contract selfDestructable {
         require(msg.sender == owner);
         sprint.f14(address(this), owner);
         selfdestruct(payable(address(this)));
+    }
+}
+
+contract tempAttacker {
+    address public immutable teamAddr;
+    address public immutable currSprint;
+
+    constructor(address _teamAddr, address _currSprint) {
+        teamAddr = _teamAddr;
+        currSprint = _currSprint;
+        SoliditySprint2023(currSprint).f15(teamAddr);
+    }
+
+    fallback() external {
+        SoliditySprint2023(currSprint).f15(teamAddr);
     }
 }

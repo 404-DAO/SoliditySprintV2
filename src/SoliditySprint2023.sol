@@ -6,7 +6,7 @@ import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol"
 import "@solmate/tokens/ERC1155.sol";
 
 import {ISignatureTransfer} from "./interfaces/ISignatureTransfer.sol";
-import { IEIP712 } from "./interfaces/IEIP712.sol";
+import {IEIP712} from "./interfaces/IEIP712.sol";
 
 import {CREATE3} from "./CREATE3.sol";
 import {BytesLib} from "./BytesLib.sol";
@@ -42,6 +42,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     address public immutable uniV2Pair;
 
     mapping(address _contract => bool) public hasEntered;
+    mapping(address => uint256) public entryCount;
 
     uint256 public startTime;
 
@@ -123,7 +124,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         solves[challengeNum]++;
     }
 
-    //Test of your ability to call functions
     function f0() public isLive {
         uint256 fNum = 0;
         require(!progress[msg.sender][fNum]);
@@ -131,7 +131,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 200);
     }
 
-    //Test your ability to read from the state
     function f1(uint256 num) public payable isLive {
         uint256 fNum = 1;
         require(!progress[msg.sender][fNum]);
@@ -142,7 +141,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 400);
     }
 
-    //Test knowledge of globally available constants
     function f2(uint256 val) public isLive {
         uint256 fNum = 2;
         require(!progress[msg.sender][fNum]);
@@ -152,7 +150,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 600);
     }
 
-    //test knowledge of bitwise-OR and XOR operator (last year I just used XOR)
     function f3(int256 val) public isLive {
         uint256 fNum = 3;
         require(!progress[msg.sender][fNum]);
@@ -162,7 +159,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 800);
     }
 
-    //Test of understanding ether balance
     function f4(address destAddr) public isLive {
         uint256 fNum = 4;
         require(!progress[msg.sender][fNum]);
@@ -177,7 +173,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 1000);
     }
 
-    //Requires you to check the chain for a previous transaction "set first hash"
     function f5(bytes memory inputData) public isLive {
         uint256 fNum = 5;
         require(!progress[msg.sender][fNum]);
@@ -187,7 +182,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 1200);
     }
 
-    //Just like f5 but now you need to parse input data to the constructor
     function f6(bytes memory inputData) public isLive {
         uint256 fNum = 6;
         require(!progress[msg.sender][fNum]);
@@ -197,9 +191,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 1400);
     }
 
-    //Test of your ability to set a minimum gas price
-    //Since gas price is unpredictable there's an admin function to manually lower it if necessary
-    //if gas is abnormally high on the day of the sprint
     function f7() public isLive {
         uint256 fNum = 7;
         require(!progress[msg.sender][fNum]);
@@ -209,8 +200,16 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 1600);
     }
 
-    //function that tests your ability to use supportsInterface
-    function f8(address team) external onlyContracts isLive {
+     function f8(uint256 val1, uint256 val2) public isLive {
+        uint256 fNum = 10;
+        require(!progress[msg.sender][fNum]);
+
+        require(~val1 == val2);
+
+        givePoints(fNum, msg.sender, 1800);
+    }
+
+    function f9(address team) external onlyContracts isLive {
         uint256 fNum = 8;
         require(!progress[team][fNum]);
 
@@ -221,11 +220,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, team, 2000);
     }
 
-    /*
-    I want you to use supportsInterface with the same contract as f8 but I want it to revert
-    on a specific input and with a specific return message.
-    */
-    function f9(address team) public onlyContracts isLive {
+    function f10(address team) public onlyContracts isLive {
         uint256 fNum = 9;
         require(!progress[msg.sender][fNum]);
         require(progress[msg.sender][fNum - 1]);
@@ -239,17 +234,8 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
                 keccak256(abi.encode(reason)) == keccak256(abi.encode(expected)),
                 "Someone didn't take care of their shoes..."
             );
-            givePoints(fNum, team, 2000);
+            givePoints(fNum, team, 2200);
         }
-    }
-
-    function f10(uint256 val1, uint256 val2) public isLive {
-        uint256 fNum = 10;
-        require(!progress[msg.sender][fNum]);
-
-        require(~val1 == val2);
-
-        givePoints(fNum, msg.sender, 2200);
     }
 
     function f11(address team) public onlyContracts isLive {
@@ -258,10 +244,9 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
         _mint(msg.sender, block.timestamp, 1, "");
 
-        givePoints(fNum, msg.sender, 2400);
+        givePoints(fNum, team, 2400);
     }
 
-    //Test of ABI encoding/decoding
     function f12(bytes memory data) public isLive {
         uint256 fNum = 12;
         require(!progress[msg.sender][fNum]);
@@ -275,33 +260,43 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 2600);
     }
 
-    function f13(address team, bytes32 signature) public isLive {
+    function f13(address team, uint256 nonce) public isLive {
         uint256 fNum = 13;
         require(!progress[team][fNum]);
+
+        uint256 d = solves[fNum] + 16;
+        uint256 _hash = uint256(keccak256(abi.encode(nonce, msg.sender)));
+        uint256 mask = 1 << d;
+        require(_hash % mask == 0);
 
         givePoints(fNum, team, 2800);
     }
 
-    //Give me a contract before and aft. er it has self-destructed
     function f14(address _destination, address team) public isLive {
         uint256 fNum = 14;
         require(!progress[team][fNum]);
 
         if (!hasEntered[_destination]) {
-            //Require contract exist
             require(msg.sender.code.length != 0);
             hasEntered[msg.sender] = true;
         } else {
-            //Contract must be selfdestructed by this point
-            //TODO: Add a check that the address hasn't been used already
             require(_destination.code.length == 0);
             givePoints(fNum, team, 3000);
         }
     }
 
-    function f15(address team, address expectedSigner, bytes memory signature) external isLive {
+    function f15(address team) external isLive {
         uint256 fNum = 15;
         require(!progress[team][fNum]);
+
+        require(msg.sender.code.length == 0);
+        require(msg.sender != tx.origin);
+
+        if (entryCount[msg.sender] == 0) {
+            entryCount[msg.sender]++;
+            (bool sent,) = msg.sender.call("");
+            require(sent);
+        }
 
         givePoints(fNum, team, 3200);
     }
@@ -310,12 +305,11 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         uint256 fNum = 16;
         require(!progress[team][fNum]);
 
-        require(token2.balanceOf(msg.sender) != 0, "Looks like someone wrote a check their butt can't cash");
+        require(token2.balanceOf(msg.sender) != 0, "You must construct additional pylons");
 
         givePoints(fNum, team, 3400);
     }
 
-    //Test using Permit2. They must first approve permit2 to transfer WETH then provide a signature to do the actual transfer
     function f17(address team, bytes memory signature) public isLive {
         uint256 fNum = 17;
         require(!progress[team][fNum]);
@@ -334,7 +328,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, team, 3600);
     }
 
-    //Challenge that tests your ability to deploy using create3 library included
+    //https://medium.com/@0xTraub/it-wont-byte-learning-not-to-fear-assembly-through-omni-chain-deployments-5ca82253c224
     function f18(address team) public isLive {
         uint256 fNum = 18;
         require(!progress[team][fNum]);
@@ -345,60 +339,21 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, team, 3800);
     }
 
-    //https://etherscan.io/find-similar-contracts
     function f19(address team, address contract1, address contract2) public isLive {
         uint256 fNum = 19;
         require(!progress[team][fNum]);
 
         assembly {
-            //if the two addresses are the same revert
             if eq(xor(contract1, contract2), 0x00) { revert(0, 0) }
 
-            //if their codehash is different revert
             if gt(xor(extcodehash(contract1), extcodehash(contract2)), 0x00) { revert(0, 0) }
         }
 
         givePoints(fNum, team, 4000);
     }
 
-    function f20(address team, address addr) public isLive {
+    function f20(address team, address _contract) public isLive {
         uint256 fNum = 20;
-        require(!progress[team][fNum]);
-
-        assembly {
-            //require contract to exist
-            if eq(extcodesize(addr), 0x00) { revert(0, 0) }
-
-            // set the size of the code to copy
-            let size := 0x5
-
-            // Get the next free memory slot from the memPointer
-            let code := mload(0x40)
-            let storageLocation := add(code, 0x20)
-
-            //Allocate memory for the code by moving the free memory pointer to the end
-            mstore(0x40, add(code, and(add(add(size, 0x20), 0x1f), not(0x1f))))
-
-            // store length of our input in the previous memory slot
-            mstore(code, size)
-
-            // actually retrieve the code starting with the first allocated memory slot
-            extcodecopy(addr, add(code, 0x20), 0, size)
-
-            //You need to pad the code to 32 bytes because memory slots are also 32-bytes long
-            let firstPrefix := 0x6080604052000000000000000000000000000000000000000000000000000000
-            let secondPrefix := 0x6060604052000000000000000000000000000000000000000000000000000000
-
-            //If the bytecode is prefixed with the first or second prefix revert
-            //An ERC1167 minProxy or a huff contract or something else would pass this test
-            if or(eq(mload(storageLocation), firstPrefix), eq(mload(storageLocation), secondPrefix)) { revert(0, 0) }
-        }
-        givePoints(fNum, team, 4200);
-    }
-
-    //TODO: Consider rewriting it to be more like f20 using raw assembly instead of using BytesLib
-    function f21(address team, address _contract) public isLive {
-        uint256 fNum = 21;
         require(!progress[team][fNum]);
 
         bytes memory magicBytes = hex"a165767970657283000309000b";
@@ -406,6 +361,33 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         bytes memory bytecode = _contract.code.slice(_contract.code.length - 13, 13);
 
         require(keccak256(bytecode) == keccak256(magicBytes), "keep trying");
+
+        givePoints(fNum, team, 4200);
+    }
+
+    function f21(address team, address addr) public isLive {
+        uint256 fNum = 21;
+        require(!progress[team][fNum]);
+
+        assembly {
+            if eq(extcodesize(addr), 0x00) { revert(0, 0) }
+
+            let size := 0x5
+
+            let code := mload(0x40)
+            let storageLocation := add(code, 0x20)
+
+            mstore(0x40, add(code, and(add(add(size, 0x20), 0x1f), not(0x1f))))
+
+            mstore(code, size)
+
+            extcodecopy(addr, add(code, 0x20), 0, size)
+
+            let firstPrefix := 0x6080604052000000000000000000000000000000000000000000000000000000
+            let secondPrefix := 0x6060604052000000000000000000000000000000000000000000000000000000
+
+            if or(eq(mload(storageLocation), firstPrefix), eq(mload(storageLocation), secondPrefix)) { revert(0, 0) }
+        }
 
         givePoints(fNum, team, 4400);
     }
