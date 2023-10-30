@@ -49,7 +49,7 @@ contract SoliditySprintSolutions is Test {
     uint256 minimumGasPrice = 25000000000; //25 Gwei
 
     address public constant beaconChainDepositContract = 0x00000000219ab540356cBB839Cbe05303d7705Fa;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
     address public constant uniswapFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
     address public constant uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address public constant permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
@@ -58,7 +58,7 @@ contract SoliditySprintSolutions is Test {
     FakeERC20 public token2;
 
     constructor() {
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("goerli");
 
         token1 = new FakeERC20("Esther", "ESTHER");
         token2 = new FakeERC20("Harpua", "HARPUA");
@@ -261,16 +261,16 @@ contract SoliditySprintSolutions is Test {
 
     function testf19() public pointsIncreased {
         sprint.f19(
-            address(this), 0x4568335F3E977F24C61625FFc14357B5c352e53a, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+            address(this), 0x18F3C12cbd093B188B778C629E979c9160473CaB, 0x01C77F5b183D04fDC4f13F5Cf9fdBBf24AB619e8
         );
     }
 
     function testf20() public pointsIncreased {
-        sprint.f20(address(this), 0x5702BDB1Ec244704E3cBBaAE11a0275aE5b07499);
+        sprint.f20(address(this), 0xF7D34A43D1dcE8CA44f38acd1E83f1911508dfc3);
     }
 
     function testf21() public pointsIncreased {
-        sprint.f21(address(this), 0xbe35cD2a89ffFCBcC4445Faf92b27Ecc878c9f4e);
+        sprint.f21(address(this), 0xF7D34A43D1dcE8CA44f38acd1E83f1911508dfc3);
     }
 
     fallback() external {}
