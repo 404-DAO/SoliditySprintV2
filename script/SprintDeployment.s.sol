@@ -49,6 +49,9 @@ contract SprintDeployment is Script {
         //If you also want to start the sprint
         // sprint.start();
 
+        // sprint.registerTeam("testing");
+        // sprint.f21(address(this), 0xF7D34A43D1dcE8CA44f38acd1E83f1911508dfc3);
+
         vm.stopBroadcast();
 
         console.log("Sprint Address: %s", address(sprint));
