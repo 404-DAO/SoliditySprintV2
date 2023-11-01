@@ -5,7 +5,6 @@ import {SoliditySprint2023, CREATE3} from "src/SoliditySprint2023.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IEIP712} from "src/interfaces/IEIP712.sol";
 import {ISignatureTransfer} from "src/interfaces/ISignatureTransfer.sol";
