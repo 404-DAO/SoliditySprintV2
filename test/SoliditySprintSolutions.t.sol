@@ -1,4 +1,4 @@
-pragma solidity >= 0.8.5;
+pragma solidity >= 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {SoliditySprint2023, CREATE3} from "src/SoliditySprint2023.sol";

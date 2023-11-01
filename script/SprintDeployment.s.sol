@@ -1,4 +1,4 @@
-pragma solidity <=0.8.19;
+pragma solidity >0.8.19;
 
 import "forge-std/Script.sol";
 import { SoliditySprint2023 } from "src/SoliditySprint2023.sol";
