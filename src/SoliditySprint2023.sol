@@ -126,9 +126,9 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
         progress[team][challengeNum] = true;
 
-        if (challengeNum != 23) {
-            scores[team] += (points - solves[challengeNum]);
-        }
+        //Points should decrease as solves increase
+        scores[team] += (points - (10 * solves[challengeNum]));
+
         solves[challengeNum]++;
     }
 
