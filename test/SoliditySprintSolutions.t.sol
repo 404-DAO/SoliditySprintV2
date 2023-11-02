@@ -1,4 +1,4 @@
-pragma solidity >= 0.8.19;
+pragma solidity <= 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {SoliditySprint2023, CREATE3} from "src/SoliditySprint2023.sol";
@@ -213,7 +213,7 @@ contract SoliditySprintSolutions is Test {
     //https://etherscan.deth.net/address/0x000000000022D473030F116dDEE9F6B43aC78BA3
     //https://github.com/Uniswap/permit2/blob/main/test/SignatureTransfer.t.sol
     function testf17() public pointsIncreased {
-        (bool success, ) = address(WETH).call{value: 1 ether}("");
+        (bool success,) = address(WETH).call{value: 1 ether}("");
         require(success);
         require(ERC20(WETH).balanceOf(address(this)) != 0, "NO WETH AVAILABLE");
 

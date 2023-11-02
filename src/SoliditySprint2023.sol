@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity <=0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC4626, IERC20} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
@@ -46,7 +46,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     mapping(address => uint256) public entryCount;
 
     uint256 public startTime;
-    uint hoursToExtend;
+    uint256 hoursToExtend;
 
     event registration(address indexed teamAddr, string name);
 
@@ -83,7 +83,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         live = false;
     }
 
-    function extendTime(uint _hours) public onlyOwner {
+    function extendTime(uint256 _hours) public onlyOwner {
         hoursToExtend = _hours;
         timeExtended = true;
     }
@@ -114,7 +114,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
         require(!teams[teamHash], "team already registered");
         require(!registered[msg.sender], "team already registered");
-
 
         teams[teamHash] = true;
         registered[msg.sender] = true;
@@ -208,7 +207,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         givePoints(fNum, msg.sender, 1600);
     }
 
-     function f8(uint256 val1, uint256 val2) public isLive {
+    function f8(uint256 val1, uint256 val2) public isLive {
         uint256 fNum = 10;
         require(!progress[msg.sender][fNum]);
 

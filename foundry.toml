@@ -5,7 +5,7 @@ libs = ['lib', 'node_modules']
 test = 'test/'
 script = 'script/'
 cache_path = 'forge-cache'
-evm_version = 'paris'
+solc_version = '0.8.19'
 
 [fuzz]
 runs = 256

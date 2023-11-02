@@ -1,12 +1,11 @@
-pragma solidity >0.8.19;
+pragma solidity <=0.8.19;
 
 import "forge-std/Script.sol";
-import { SoliditySprint2023 } from "src/SoliditySprint2023.sol";
-import { FakeERC20, IUniswapRouter, IUniswapFactory } from "test/SoliditySprintSolutions.t.sol";
+import {SoliditySprint2023} from "src/SoliditySprint2023.sol";
+import {FakeERC20, IUniswapRouter, IUniswapFactory} from "test/SoliditySprintSolutions.t.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract SprintDeployment is Script {
-    
     address public constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
     address public constant uniswapFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
     address public constant uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
@@ -59,5 +58,4 @@ contract SprintDeployment is Script {
         console.log("Address token2: %s", address(token2));
         console.log("UniV2 Pool Address: %s", pair);
     }
-
 }
