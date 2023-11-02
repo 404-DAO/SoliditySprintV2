@@ -10,7 +10,7 @@ contract SprintDeployment is Script {
     address public constant uniswapFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
     address public constant uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address public constant permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
-    uint256 minimumGasPrice = 25000000000; //25 Gwei
+    uint256 minimumGasPrice = 5000000000; //25 Gwei
 
     bytes constant constructorInputData = "There can be only one";
     bytes constant firstHashInputData = "Surely you can't be serious. I am serious... and don't call me Shirley.";
@@ -46,10 +46,10 @@ contract SprintDeployment is Script {
         sprint.setMinimumGasPrice(minimumGasPrice);
 
         //If you also want to start the sprint
-        // sprint.start();
+        sprint.start();
 
-        // sprint.registerTeam("testing");
-        // sprint.f21(address(this), 0xF7D34A43D1dcE8CA44f38acd1E83f1911508dfc3);
+        sprint.registerTeam("FakeTeam");
+        sprint.f0();
 
         vm.stopBroadcast();
 

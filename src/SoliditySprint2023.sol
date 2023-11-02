@@ -46,7 +46,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     mapping(address => uint256) public entryCount;
 
     uint256 public startTime;
-    uint256 hoursToExtend;
+    uint256 public hoursToExtend;
 
     event registration(address indexed teamAddr, string name);
 
