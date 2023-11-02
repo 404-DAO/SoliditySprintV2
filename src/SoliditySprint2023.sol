@@ -30,6 +30,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
     mapping(uint256 => uint256) public solves;
     mapping(bytes32 => bool) public teams;
+    mapping(address team => bool registered) public registered;
 
     uint256 public highestNumber;
 
@@ -45,6 +46,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     mapping(address => uint256) public entryCount;
 
     uint256 public startTime;
+    uint hoursToExtend;
 
     event registration(address indexed teamAddr, string name);
 
@@ -81,7 +83,8 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         live = false;
     }
 
-    function extendTime() public onlyOwner {
+    function extendTime(uint _hours) public onlyOwner {
+        hoursToExtend = _hours;
         timeExtended = true;
     }
 
@@ -93,7 +96,7 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
         require(live);
 
         if (timeExtended) {
-            require(block.timestamp < startTime + 3 hours);
+            require(block.timestamp < startTime + 2 hours + (1 hours * hoursToExtend));
         } else {
             require(block.timestamp < startTime + 2 hours);
         }
@@ -109,13 +112,18 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
     function registerTeam(string memory team) public isLive {
         bytes32 teamHash = keccak256(abi.encode(team, msg.sender));
 
-        require(!teams[teamHash], "team already rsegistered");
+        require(!teams[teamHash], "team already registered");
+        require(!registered[msg.sender], "team already registered");
+
 
         teams[teamHash] = true;
+        registered[msg.sender] = true;
         emit registration(msg.sender, team);
     }
 
     function givePoints(uint256 challengeNum, address team, uint256 points) internal {
+        require(registered[team], "team not registered");
+
         progress[team][challengeNum] = true;
 
         if (challengeNum != 23) {
