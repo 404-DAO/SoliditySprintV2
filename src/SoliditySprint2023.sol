@@ -52,7 +52,6 @@ contract SoliditySprint2023 is Ownable, ERC1155 {
 
     constructor(
         bytes memory inputData,
-        address uniV2Pool,
         address _weth,
         address _token1,
         address _token2,

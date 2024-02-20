@@ -35,7 +35,7 @@ contract SprintDeployment is Script {
         token2.approve(uniswapRouter, type(uint256).max);
         ERC20(WETH).approve(permit2, type(uint256).max);
 
-        sprint = new SoliditySprint2023(constructorInputData, address(0), WETH, address(token1), address(token2), pair);
+        sprint = new SoliditySprint2023(constructorInputData, WETH, address(token1), address(token2), pair);
         token1.transfer(address(sprint), 50000 ether);
 
         IUniswapRouter(uniswapRouter).addLiquidity(

@@ -70,7 +70,7 @@ contract SoliditySprintSolutions is Test {
         token2.approve(uniswapRouter, type(uint256).max);
         ERC20(WETH).approve(permit2, type(uint256).max);
 
-        sprint = new SoliditySprint2023(constructorInputData, address(0), WETH, address(token1), address(token2), pair);
+        sprint = new SoliditySprint2023(constructorInputData, WETH, address(token1), address(token2), pair);
 
         vm.txGasPrice(minimumGasPrice + 1);
 
